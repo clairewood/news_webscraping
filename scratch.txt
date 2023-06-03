@@ -1,0 +1,342 @@
+
+
+import json
+import os 
+from requests_html import HTMLSession
+import requests
+from bs4 import BeautifulSoup
+
+
+def getNewsData(): # (topic)
+    """ 
+    Webscraping Google News data.
+    This function was adapted from the following source, accessed 6/3/2023:
+    https://www.youtube.com/watch?v=uKb9fA4gyWQ   
+    """
+    session = HTMLSession()
+
+    # url = 'https://python.org/'
+    url = "https://www.google.com/search?q=sharks&gl=us&tbm=nws&num=100"
+    # url = f"https://www.google.com/search?q={topic}&gl=us&tbm=nws&num=100"
+    
+    r = session.get(url)   
+
+    r.html.render(sleep=1)
+
+    # links = r.html.links 
+
+    soup = BeautifulSoup(r.content, "html.parser")
+    news_results = [] 
+
+    i=0
+    for el in soup.select("div.v7W49e"):
+        if i < 3:
+            news_results.append(
+                {
+                    "link": el.find("a")["href"],
+                    "title": el.find(".LC20lb MBeu0 DKV0Md").get_text(),
+                    "snippet": el.select_one(".VwiC3b yXK7lf MUxGbd yDYNvb lyLwlc lEBKkf span").get_text(),
+                    "source": el.select_one(".VuuXrf").get_text()
+                }
+            )
+        else:
+            break
+        i += 1
+
+    print(news_results) 
+    # print(articles)
+    print(r) 
+
+    # for article in articles: 
+        # newsarticle = article.find('h3', first=True)
+
+json_object = getNewsData()
+
+
+
+
+
+def addToJSON(json_object):
+    existing_file = "flask_SE/news.json"
+    data = [] # we'll fill this with existing json data in a sec
+
+    if os.stat(existing_file).st_size == 0:
+        with open(existing_file, "w") as outfile:
+                outfile.write(json_object) 
+    else:
+        with open(existing_file, "r") as file:
+            data = json.load(file) 
+        # print(f"length of data = {len(data)}")
+        # print(f"data = {data}\n\n")
+        # print(f"Type of json_object: {type(json_object)}")
+        temp = json_object
+        json_object = json.loads(temp)
+        # print(f"Type of json_object: {type(json_object)}")
+
+        for article in json_object:
+            data.append(article)
+        # data.append(json_object)
+        # print(f"json_object = {json_object}\n\n")
+        # print(f"data = {data}\n\n")
+
+        with open(existing_file, "w") as file:
+            json.dump(data, file, indent=2, separators=(',',': '))
+
+
+# # # Testing # # #
+
+# input = "sharks"
+# json_object = getNewsData(input)
+# json_object = getNewsData()
+# print(json_object)
+# addToJSON(json_object)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import json
+import os 
+from requests_html import HTMLSession
+import requests
+from bs4 import BeautifulSoup
+from pygooglenews import GoogleNews # https://www.youtube.com/watch?v=rQXL9A0ST5k 
+
+
+def getNewsData(): # (topic)
+    """ 
+    Webscraping Google News data.
+    This function was adapted from the following source, accessed 6/3/2023:
+    https://www.youtube.com/watch?v=uKb9fA4gyWQ   
+    """
+    s = HTMLSession()
+
+    url = "https://news.google.com/rss/search?q=sharks&hl=en-US&gl=US&ceid=US:en"
+    # url = f"https://www.google.com/search?q={topic}&gl=us&tbm=nws&num=100"
+    
+    r = s.get(url)   
+
+    soup = BeautifulSoup(r.content, "html.parser")
+    news_results = [] 
+    
+    # news_articles = []
+    # print(r.html.html)
+
+    for title in r.html.find('title'):
+        print(title.text)
+    # for link in r.html.find('link'):
+        # print(link)
+    
+
+
+json_object = getNewsData()
+
+
+
+
+
+def addToJSON(json_object):
+    existing_file = "flask_SE/news.json"
+    data = [] # we'll fill this with existing json data in a sec
+
+    if os.stat(existing_file).st_size == 0:
+        with open(existing_file, "w") as outfile:
+                outfile.write(json_object) 
+    else:
+        with open(existing_file, "r") as file:
+            data = json.load(file) 
+        # print(f"length of data = {len(data)}")
+        # print(f"data = {data}\n\n")
+        # print(f"Type of json_object: {type(json_object)}")
+        temp = json_object
+        json_object = json.loads(temp)
+        # print(f"Type of json_object: {type(json_object)}")
+
+        for article in json_object:
+            data.append(article)
+        # data.append(json_object)
+        # print(f"json_object = {json_object}\n\n")
+        # print(f"data = {data}\n\n")
+
+        with open(existing_file, "w") as file:
+            json.dump(data, file, indent=2, separators=(',',': '))
+
+
+# # # Testing # # #
+
+# input = "sharks"
+# json_object = getNewsData(input)
+# json_object = getNewsData()
+# print(json_object)
+# addToJSON(json_object)
+
+
+
+
+
+
+
+
+    # for article in response.html.find('title'):
+        # print(article.text)
+    # for pubdate in response.html.find('pubDate'):
+        # print(pubdate.text)
+    # for description in response.html.find('description'):
+        # print(description.text)
+    # for link in response.html.find('link'):
+        # print(link.text)
+    # for source in response.html.find('source url'):
+        # print(source.text)
+
+
+
+
+# SOURCE
+# All of my articles were showing up as blank when using newspaper's Article import, 
+# but the solution at this link  (accessed 6/3/2023) solved my problem: 
+# https://stackoverflow.com/questions/75542842/why-is-summary-on-the-python-newspaper3k-module-returning-blank 
+# All code involving "config" was adapted from the solution at the above link. 
+ 
+
+
+import json
+import os 
+import requests
+from requests_html import HTMLSession
+from bs4 import BeautifulSoup
+from GoogleNews import GoogleNews # https://www.youtube.com/watch?v=rQXL9A0ST5k 
+from newspaper import Article, Config
+import nltk
+nltk.download('punkt')
+user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
+config = Config() 
+config.request_timeout = 10
+config.browser_user_agent = user_agent
+# Fixed config error and timeout error: f
+# https://stackoverflow.com/questions/75542842/why-is-summary-on-the-python-newspaper3k-module-returning-blank  
+
+
+def getNewsData(): # (topic)
+    url = 'https://news.google.com/rss/search?q=sharks&hl=en-US&gl=US&ceid=US:en'
+    session = HTMLSession()
+    response = session.get(url)
+    print(response)
+
+    soup = BeautifulSoup(response.content, features="xml")
+    news_results = [] 
+
+
+    i=0
+    for el in soup.select("item"):
+        no_snippet = False # Toggle for whether we were able to access an article snippet or not
+        if i < 5: # Get 5 articles from each news topic 
+            # Get link from google news
+            google_url = el.find("link").get_text()
+            # Open it and wait for it to redirect to the real link
+            r = requests.get(google_url)
+            # use newspaper3k to scrape the real article for a summary 
+            redirected_url = r.url 
+            article = Article(redirected_url, config=config)
+            try: 
+                article.download()
+                article.parse()
+                article.nlp() 
+            except:
+                no_snippet = True # The page blocks 3rd-party downloads
+            snippet = None 
+            if no_snippet:
+                snippet = "Click the link to view the full article."
+            else: 
+                snippet = article.summary[0:150] + "..."
+                print(snippet)
+            no_snippet = False # reset no_snippet
+            # print(f"Article authors: {article.authors}")
+            news_results.append(
+                {
+                    "link": el.find("link").get_text(),
+                    "title": el.find("title").get_text(),
+                    "date": el.find("pubDate").get_text(),
+                    "snippet": snippet,
+                    "source": el.find("source").get_text()
+                    # TODO load this as new method of scraping
+                    # Write something that gets snippet 
+                }
+            )
+        else:
+            break
+        i += 1
+    print(news_results)
+
+
+def get_snippet(google_url):
+    snippet = None 
+
+    r = requests.get(google_url)
+    # use newspaper3k to scrape the real article for a summary 
+    redirected_url = r.url 
+    article = Article(redirected_url, config=config)
+    
+    try: 
+        article.download()
+        article.parse()
+        article.nlp() 
+    except:
+        no_snippet = True # The page blocks 3rd-party downloads
+    
+    if no_snippet:
+        snippet = "Click the link to view the full article."
+    else: 
+        snippet = article.summary[0:150] + "..."
+        # print(snippet)
+    return snippet 
+
+
+getNewsData()
+
+
+
+def addToJSON(json_object):
+    existing_file = "flask_SE/news.json"
+    data = [] # we'll fill this with existing json data in a sec
+
+    if os.stat(existing_file).st_size == 0:
+        with open(existing_file, "w") as outfile:
+                outfile.write(json_object) 
+    else:
+        with open(existing_file, "r") as file:
+            data = json.load(file) 
+        # print(f"length of data = {len(data)}")
+        # print(f"data = {data}\n\n")
+        # print(f"Type of json_object: {type(json_object)}")
+        temp = json_object
+        json_object = json.loads(temp)
+        # print(f"Type of json_object: {type(json_object)}")
+
+        for article in json_object:
+            data.append(article)
+        # data.append(json_object)
+        # print(f"json_object = {json_object}\n\n")
+        # print(f"data = {data}\n\n")
+
+        with open(existing_file, "w") as file:
+            json.dump(data, file, indent=2, separators=(',',': '))
+
+
+# # # Testing # # #
+
+# input = "sharks"
+# json_object = getNewsData(input)
+# json_object = getNewsData()
+# print(json_object)
+# addToJSON(json_object)
