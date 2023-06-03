@@ -98,27 +98,12 @@ def addToJSON(json_object):
     else:
         with open(existing_file, "r") as file:
             data = json.load(file) 
-        # print(f"length of data = {len(data)}")
-        # print(f"data = {data}\n\n")
-        # print(f"Type of json_object: {type(json_object)}")
+
         temp = json_object
         json_object = json.loads(temp)
-        # print(f"Type of json_object: {type(json_object)}")
 
         for article in json_object:
             data.append(article)
-        # data.append(json_object)
-        # print(f"json_object = {json_object}\n\n")
-        # print(f"data = {data}\n\n")
 
         with open(existing_file, "w") as file:
             json.dump(data, file, indent=2, separators=(',',': '))
-
-
-# # # Testing # # #
-
-# input = "sharks"
-# json_object = getNewsData(input)
-# json_object = getNewsData()
-# print(json_object)
-# addToJSON(json_object)
